@@ -1,0 +1,29 @@
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Environment files
+**/.env
+**/.env.local
+**/.env.*.local
+
+# Node and Expo
+**/node_modules/
+**/.expo/
+**/dist/
+**/web-build/
+**/expo-env.d.ts
+
+# Python cache and virtualenv internals
+**/__pycache__/
+**/*.py[cod]
+backend/venv/Include/
+backend/venv/Lib/
+backend/venv/Scripts/
+backend/venv/__pycache__/
+backend/venv/pyvenv.cfg
+
+# Large local data
+ai/dataset/
