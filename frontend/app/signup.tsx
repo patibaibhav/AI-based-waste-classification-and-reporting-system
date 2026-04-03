@@ -6,13 +6,14 @@ import { useAuth } from '@/providers/auth-provider';
 import { Ionicons } from '@expo/vector-icons';
 import { Redirect, router } from 'expo-router';
 import { useState } from 'react';
-import { ActivityIndicator, Alert, StyleSheet, Text, TextInput, View } from 'react-native';
+import { ActivityIndicator, Alert, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 
 export default function SignupScreen() {
   const { signup, isLoading, user } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [selectedRole, setSelectedRole] = useState<'user' | 'admin'>('user');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -24,7 +25,7 @@ export default function SignupScreen() {
     setErrorMessage('');
     setIsSubmitting(true);
     try {
-      const authenticatedUser = await signup({ name, email, password });
+      const authenticatedUser = await signup({ name, email, password, role: selectedRole });
       router.replace(authenticatedUser.role === 'admin' ? routes.admin : routes.tabs);
     } catch (error) {
       console.error(error);
@@ -100,6 +101,61 @@ export default function SignupScreen() {
             style={styles.input}
             value={password}
           />
+        </View>
+
+        <View style={styles.inputGroup}>
+          <Text style={styles.label}>Account Type</Text>
+          <View style={styles.roleGrid}>
+            <Pressable 
+              onPress={() => setSelectedRole('user')}
+              style={[
+                styles.roleOption,
+                selectedRole === 'user' && styles.roleOptionSelected
+              ]}
+            >
+              <Ionicons 
+                color={selectedRole === 'user' ? AppTheme.colors.white : AppTheme.colors.textMuted}
+                name="person-outline" 
+                size={24} 
+              />
+              <Text 
+                style={[
+                  styles.roleOptionText,
+                  selectedRole === 'user' && styles.roleOptionTextSelected
+                ]}
+              >
+                Field User
+              </Text>
+              <Text style={[styles.roleOptionDesc, selectedRole === 'user' && styles.roleOptionDescSelected]}>
+                Classify &amp; Report
+              </Text>
+            </Pressable>
+
+            <Pressable 
+              onPress={() => setSelectedRole('admin')}
+              style={[
+                styles.roleOption,
+                selectedRole === 'admin' && styles.roleOptionSelected
+              ]}
+            >
+              <Ionicons 
+                color={selectedRole === 'admin' ? AppTheme.colors.white : AppTheme.colors.textMuted}
+                name="shield-checkmark-outline" 
+                size={24} 
+              />
+              <Text 
+                style={[
+                  styles.roleOptionText,
+                  selectedRole === 'admin' && styles.roleOptionTextSelected
+                ]}
+              >
+                Admin
+              </Text>
+              <Text style={[styles.roleOptionDesc, selectedRole === 'admin' && styles.roleOptionDescSelected]}>
+                Review &amp; Manage
+              </Text>
+            </Pressable>
+          </View>
         </View>
 
         {errorMessage ? <Text style={styles.errorText}>{errorMessage}</Text> : null}
@@ -201,5 +257,71 @@ const styles = StyleSheet.create({
   loadingText: {
     color: AppTheme.colors.textMuted,
     fontSize: 15,
+  },
+  roleSelector: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  roleGrid: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  roleOption: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    padding: 16,
+    backgroundColor: AppTheme.colors.surfaceMuted,
+    borderRadius: AppTheme.radius.md,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  roleOptionSelected: {
+    backgroundColor: AppTheme.colors.primary,
+    borderColor: AppTheme.colors.primary,
+  },
+  roleOptionText: {
+    color: AppTheme.colors.textMuted,
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  roleOptionTextSelected: {
+    color: AppTheme.colors.white,
+  },
+  roleOptionDesc: {
+    color: AppTheme.colors.textMuted,
+    fontSize: 11,
+    fontWeight: '400',
+  },
+  roleOptionDescSelected: {
+    color: 'rgba(255, 255, 255, 0.8)',
+  },
+  roleBtnContent: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+  },
+  roleButton: {
+    flex: 1,
+    backgroundColor: AppTheme.colors.surfaceMuted,
+    borderRadius: AppTheme.radius.md,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  roleButtonActive: {
+    backgroundColor: `${AppTheme.colors.primary}20`,
+    borderColor: AppTheme.colors.primary,
+  },
+  roleButtonText: {
+    color: AppTheme.colors.textMuted,
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  roleButtonTextActive: {
+    color: AppTheme.colors.primary,
   },
 });

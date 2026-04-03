@@ -5,7 +5,7 @@ import { PrimaryButton } from '@/components/app/primary-button';
 import { Ionicons } from '@expo/vector-icons';
 import { Redirect, router } from 'expo-router';
 import { useState } from 'react';
-import { StyleSheet, Text, TextInput, View, Alert, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, TextInput, View, Alert, ActivityIndicator, Pressable } from 'react-native';
 
 import { useAuth } from '@/providers/auth-provider';
 
@@ -33,6 +33,7 @@ export default function LoginScreen() {
   const { login, isLoading, user } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [selectedRole, setSelectedRole] = useState<'user' | 'admin' | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -85,13 +86,41 @@ export default function LoginScreen() {
 
       <View style={styles.roleGrid}>
         {roleCards.map((card) => (
-          <View key={card.title} style={styles.roleCard}>
-            <View style={[styles.roleIcon, { backgroundColor: `${card.color}18` }]}>
-              <Ionicons color={card.color} name={card.icon} size={24} />
+          <Pressable 
+            key={card.title} 
+            onPress={() => setSelectedRole(card.title === 'Field User' ? 'user' : 'admin')}
+            style={[
+              styles.roleCard,
+              (selectedRole === 'user' && card.title === 'Field User' || selectedRole === 'admin' && card.title === 'Admin') && styles.roleCardSelected
+            ]}
+          >
+            <View style={[
+              styles.roleIcon, 
+              { 
+                backgroundColor: (selectedRole === 'user' && card.title === 'Field User' || selectedRole === 'admin' && card.title === 'Admin') 
+                  ? card.color 
+                  : `${card.color}18` 
+              }
+            ]}>
+              <Ionicons 
+                color={(selectedRole === 'user' && card.title === 'Field User' || selectedRole === 'admin' && card.title === 'Admin') ? AppTheme.colors.white : card.color} 
+                name={card.icon} 
+                size={24} 
+              />
             </View>
-            <Text style={styles.roleTitle}>{card.title}</Text>
-            <Text style={styles.roleSubtitle}>{card.subtitle}</Text>
-          </View>
+            <Text style={[
+              styles.roleTitle,
+              (selectedRole === 'user' && card.title === 'Field User' || selectedRole === 'admin' && card.title === 'Admin') && styles.roleTitleSelected
+            ]}>
+              {card.title}
+            </Text>
+            <Text style={[
+              styles.roleSubtitle,
+              (selectedRole === 'user' && card.title === 'Field User' || selectedRole === 'admin' && card.title === 'Admin') && styles.roleSubtitleSelected
+            ]}>
+              {card.subtitle}
+            </Text>
+          </Pressable>
         ))}
       </View>
 
@@ -184,6 +213,11 @@ const styles = StyleSheet.create({
     gap: 10,
     padding: 18,
   },
+  roleCardSelected: {
+    backgroundColor: `${AppTheme.colors.primary}10`,
+    borderColor: AppTheme.colors.primary,
+    borderWidth: 2,
+  },
   roleIcon: {
     alignItems: 'center',
     borderRadius: 16,
@@ -196,10 +230,16 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '800',
   },
+  roleTitleSelected: {
+    color: AppTheme.colors.primary,
+  },
   roleSubtitle: {
     color: AppTheme.colors.textMuted,
     fontSize: 14,
     lineHeight: 21,
+  },
+  roleSubtitleSelected: {
+    color: AppTheme.colors.primary,
   },
   formCard: {
     backgroundColor: AppTheme.colors.surface,

@@ -18,6 +18,7 @@ type AuthCredentials = {
 
 type SignupPayload = AuthCredentials & {
   name: string;
+  role?: 'user' | 'admin';
 };
 
 type AuthContextType = {
@@ -127,13 +128,13 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
-  const signup = async ({ name, email, password }: SignupPayload) => {
+  const signup = async ({ name, email, password, role = 'user' }: SignupPayload) => {
     try {
       await api.post('/auth/signup', {
         name: name.trim(),
         email: email.trim(),
         password: password.trim(),
-        role: 'user',
+        role: role,
       });
 
       return await login({ email, password });

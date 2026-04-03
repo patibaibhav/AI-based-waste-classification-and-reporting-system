@@ -1,6 +1,7 @@
 import { wasteAppearance } from '@/constants/app-theme';
 import type { ClassificationResult, WasteCategory, WasteInfo } from '@/types/app';
 import { createId } from '@/utils/format';
+import * as FileSystem from 'expo-file-system';
 
 import { requestWithCandidates } from './api';
 
@@ -66,27 +67,44 @@ function buildWasteInfo(category: WasteCategory, payload: any): WasteInfo {
 }
 
 export async function classifyWasteImage(imageUri: string) {
+  const formData = new FormData();
+
+  try {
+    console.log('Reading image from:', imageUri);
+    
+    // Handle both file:// and expo uris
+    let readUri = imageUri;
+    if (!readUri.startsWith('file://') && !readUri.startsWith('data:')) {
+      readUri = `file://${readUri}`;
+    }
+    
+    const base64 = await FileSystem.readAsStringAsync(readUri, { encoding: 'base64' });
+    console.log('Successfully read image, size:', base64.length);
+    
+    formData.append('image', {
+      uri: `data:image/jpeg;base64,${base64}`,
+      name: `waste-${Date.now()}.jpg`,
+      type: 'image/jpeg',
+    } as any);
+  } catch (error) {
+    // Silent fallback - use raw URI
+    console.log('Using fallback URI method');
+    formData.append('image', {
+      uri: imageUri,
+      name: `waste-${Date.now()}.jpg`,
+      type: 'image/jpeg',
+    } as any);
+  }
+
   const response = await requestWithCandidates<any>(
     ['/classify/', '/classify', '/predict', '/classification', '/analyze'],
-    (path) => {
-      const formData = new FormData();
-
-      formData.append(
-        'image',
-        {
-          uri: imageUri,
-          name: `waste-${Date.now()}.jpg`,
-          type: 'image/jpeg',
-        } as any
-      );
-
-      return {
-        method: 'POST',
-        url: path,
-        data: formData,
-        timeout: 60000,
-      };
-    }
+    (path) => ({
+      method: 'POST',
+      url: path,
+      data: formData,
+      timeout: 60000,
+      headers: { 'Content-Type': 'multipart/form-data' },
+    })
   );
 
   const category = normalizeWasteCategory(response?.prediction ?? response?.category ?? response?.predicted_class);
