@@ -118,5 +118,7 @@ export async function classifyWasteImage(imageUri: string) {
     imageUri,
     createdAt: new Date().toISOString(),
     accentColor: metadata.accent,
+    isRecyclable: response?.is_recyclable ?? null,
+    reasoning: response?.reasoning ?? null,
   } as ClassificationResult & { accentColor: string };
 }

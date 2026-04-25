@@ -74,6 +74,8 @@ class ClassificationResponse(BaseModel):
     image_url: Optional[str]
     predicted_class: WasteClass
     confidence: float
+    is_recyclable: Optional[str] = None
+    reasoning: Optional[str] = None
     created_at: datetime
 
     class Config:

@@ -49,8 +49,9 @@ def classify_image(
 
     # Save image and get bytes
     image_url, file_bytes = save_image(upload)
+    mime_type = upload.content_type or "image/jpeg"
 
-    # Run ML classifier
+    # ─── Step 1: Classify waste type using trained ML model ──────
     try:
         from ml_classifier import get_model_status, predict_with_trained_model
 
@@ -69,21 +70,38 @@ def classify_image(
                 detail="Could not classify image. Make sure it is a valid image."
             )
 
-        predicted_class = result.category    # ← .category not ["class"]
-        confidence      = result.confidence  # ← .confidence same name
+        predicted_class = result.category
+        confidence      = result.confidence
 
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Classification failed: {str(e)}")
 
-    # Save result to DB
+    # ─── Step 2: Check recyclability (Gemini API → rule-based fallback) ─
+    is_recyclable = None
+    reasoning = None
+
+    try:
+        from gemini_classifier import check_recyclability
+
+        recyclability = check_recyclability(file_bytes, mime_type, waste_category=predicted_class)
+        if recyclability is not None:
+            is_recyclable = recyclability.is_recyclable
+            reasoning = recyclability.reasoning
+    except Exception as e:
+        # Recyclability is optional — if it fails, we still return the classification
+        print(f"Recyclability check failed (non-blocking): {e}")
+
+    # ─── Step 3: Save combined result to DB ──────────────────────
     record = crud.create_classification(
         db,
         user_id         = current_user.id,
         predicted_class = predicted_class,
         confidence      = confidence,
-        image_url       = image_url
+        image_url       = image_url,
+        is_recyclable   = is_recyclable,
+        reasoning       = reasoning,
     )
     return record
 

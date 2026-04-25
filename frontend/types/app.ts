@@ -25,6 +25,8 @@ export interface ClassificationResult {
   data: WasteInfo;
   imageUri: string;
   createdAt: string;
+  isRecyclable?: string | null;   // "yes", "no", or null if Gemini unavailable
+  reasoning?: string | null;      // Gemini's reasoning for recyclability
 }
 
 export interface ReportItem {

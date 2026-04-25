@@ -206,14 +206,23 @@ def create_classification(
     user_id        : int,
     predicted_class: str,
     confidence     : float,
-    image_url      : str = None
+    image_url      : str = None,
+    is_recyclable  : bool = None,
+    reasoning      : str = None
 ):
     """Saves an AI classification result linked to the user."""
+    # Convert boolean to string for DB storage
+    recyclable_str = None
+    if is_recyclable is not None:
+        recyclable_str = "yes" if is_recyclable else "no"
+
     record = models.Classification(
         user_id         = user_id,
         image_url       = image_url,
         predicted_class = predicted_class,
-        confidence      = confidence
+        confidence      = confidence,
+        is_recyclable   = recyclable_str,
+        reasoning       = reasoning,
     )
     db.add(record)
     db.commit()

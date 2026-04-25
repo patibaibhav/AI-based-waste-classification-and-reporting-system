@@ -65,6 +65,8 @@ class Classification(Base):
     image_url       = Column(String, nullable=True)
     predicted_class = Column(Enum(WasteClass), nullable=False)
     confidence      = Column(Float, nullable=False)
+    is_recyclable   = Column(String, nullable=True)       # "yes", "no", or None if Gemini unavailable
+    reasoning       = Column(Text, nullable=True)          # Gemini's reasoning for recyclability
     created_at      = Column(DateTime(timezone=True), server_default=func.now())
 
     # Link back to the user who triggered this classification

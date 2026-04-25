@@ -5,6 +5,7 @@ import { EmptyState } from '@/components/app/empty-state';
 import { ImagePickerField } from '@/components/app/image-picker-field';
 import { ListItem } from '@/components/app/list-item';
 import { PrimaryButton } from '@/components/app/primary-button';
+import { RecyclabilityCard } from '@/components/app/recyclability-card';
 import { ResultCard } from '@/components/app/result-card';
 import { ScreenLayout } from '@/components/app/screen-layout';
 import { SectionCard } from '@/components/app/section-card';
@@ -135,6 +136,7 @@ export default function HomeScreen() {
       {activeResult ? (
         <>
           <ResultCard result={activeResult} />
+          <RecyclabilityCard result={activeResult} />
           <DisposalCard instructions={activeResult.data.disposal} />
           <TipsCard tips={activeResult.data.tips} />
 

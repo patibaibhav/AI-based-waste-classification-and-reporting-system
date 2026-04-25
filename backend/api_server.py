@@ -64,12 +64,16 @@ app.include_router(admin.router)
 @app.get("/")
 def root():
     from ml_classifier import get_model_status
+    from gemini_classifier import get_gemini_status
 
     model_status = get_model_status()
+    gemini_status = get_gemini_status()
     return {
         "message": "Waste Classification API is running",
         "version": "1.0.0",
         "env": APP_ENV,
         "model_ready": model_status["ready"],
         "model_status": model_status["reason"],
+        "gemini_ready": gemini_status["ready"],
+        "gemini_status": gemini_status["reason"],
     }
